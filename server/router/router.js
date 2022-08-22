@@ -18,7 +18,14 @@ try {
 })
 
 router.get('/:id', async (req,res)=> {
-    res.json({message:'bu bir getById isteği'})
+    try {
+        const {id} = req.params
+        const post = await Post.findById(id)
+        if(!post) return
+        res.status(200).json(post)
+    } catch (error) {
+        console.log(error)
+    }
 })
 
 
@@ -36,11 +43,29 @@ try {
 })
 
 router.put('/:id', async (req,res)=> {
-    res.json({message:'bu bir update isteği'})
+    try {
+        const {id} = req.params
+        const {title, content, creator} = req.body
+        if(!mongoose.Types.ObjectId.isValid(id))
+            return res.status(404).send('post bulunamadı')
+
+        const updatedPost  = { title,content,creator, _id: id}
+        await Post.findByIdAndUpdate(id,updatedPost, {new:true}
+            )
+        res.json(updatedPost)
+    } catch (error) {
+        console.log(error)
+    }
 })
 
 
 router.delete('/:id', async (req,res)=> {
-    res.json({message:'bu bir delete isteği'})
+    try {
+        const {id} = req.params
+        await Post.findByIdAndRemove(id)
+        res.json({message:"Post Silindi"})
+    } catch (error) {
+        console.log(error)
+    }
 })
 export default router;
